@@ -1,0 +1,5 @@
+-- Versioned policy baseline; tests compare this with shared/limits.json.
+create table private.app_config (id boolean primary key default true check (id), limits jsonb not null);
+alter table private.app_config enable row level security;
+revoke all on private.app_config from public, anon, authenticated;
+insert into private.app_config(id, limits) values (true, $limits${"communityCount": 1, "charactersPerAccount": 6, "characterNameMin": 1, "characterNameMax": 30, "characterBioMax": 300, "postTitleMax": 100, "postBodyMax": 5000, "commentMin": 1, "commentMax": 1000, "postImagesMax": 4, "imageInputBytesMax": 10485760, "imageLongEdgeMax": 2048, "imageMimeTypes": ["image/jpeg", "image/png", "image/webp"], "pollOptionsMin": 2, "pollOptionsMax": 10, "pollOptionTextMax": 100, "pollDefaults": {"multiple": false, "anonymous": true, "closesAt": null, "revoteAllowed": false, "resultsPolicy": "after_vote"}, "inviteDefaultUses": 1, "inviteDefaultExpiryDays": 7, "feedPageSize": 20, "exportPostsPerFile": 200, "displayTimeZone": "Asia/Seoul"}$limits$::jsonb);

@@ -1,0 +1,8 @@
+-- Run with a trusted SQL owner connection (Dashboard SQL Editor / postgres).
+-- Do not grant EXECUTE to anon/authenticated/service_role or expose the private schema.
+-- 1. Before any admin exists, run separately and securely deliver the returned one-time code:
+-- select private.issue_bootstrap_invite();
+-- 2. Complete normal email verification and invitation redemption (implemented in stage 3).
+-- 3. Substitute the verified account UUID and run separately:
+-- select private.bootstrap_admin('ACCOUNT_UUID'::uuid);
+-- This file intentionally performs no action when executed unchanged.

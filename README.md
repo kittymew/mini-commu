@@ -2,7 +2,7 @@
 
 초대제로 운영하는 캐릭터 프로필 커뮤니티입니다. 요구사항의 기준은 [구현 작업 명세서](커뮤니티_구현_작업명세서.md)입니다.
 
-현재 **1단계: 프로젝트 기반 준비**까지 구현했습니다. 화면은 기능별 자리표시자이며 회원 가입, 로그인, DB 조회·저장, 권한 검사는 아직 구현하지 않았습니다. 샘플 회원이나 게시글을 실제 데이터처럼 보여주지 않습니다.
+현재 **2단계: DB 구조와 권한 기반**까지 구현했습니다. 실제 로컬 Supabase에서 스키마·RLS·운영자 권한·비공개 Storage를 검증했습니다. 프런트엔드는 아직 기능별 자리표시자이며 가입·로그인과 콘텐츠 기능의 화면 연결은 이후 단계입니다. 샘플 데이터를 실제 서비스처럼 보여주지 않습니다.
 
 ## 개발 환경
 
@@ -50,19 +50,22 @@ E2E는 Supabase 값이 없는 기본 환경에서 실행합니다. 먼저 `pnpm 
 - `src/components`, `src/styles`: 공통 화면과 반응형 스타일
 - `src/features/*`: 이후 단계의 기능 구현 위치
 - `src/lib`: 환경변수, Supabase 초기화, 앱 공통 설정
-- `src/types`: 2단계 이후 실제 DB에서 생성할 타입 위치
+- `src/types/database.ts`: 실제 DB에서 생성한 public 스키마 타입
 - `shared/limits.json`: 캐릭터 6개, 글 이미지 4장, 글자 수, 입력 이미지 10 MiB, 피드 20개, 내보내기 200개, 투표·초대 기본값, Asia/Seoul 표시 시간대
-- `supabase/{migrations,functions,tests}`: 2단계부터 구현할 서버 영역
+- `supabase/{migrations,tests}`: DB 스키마·접근 정책·운영자 함수 및 실제 DB/API 검증
+- `supabase/functions`: 이후 단계의 서버 함수 위치
 - `tests/e2e`: 1단계 브라우저 검증
 
-제한값은 `shared/limits.json`을 기준으로 관리합니다. 현재 서버는 없으므로 서버에서 강제하는 제한은 아직 없습니다. 2단계 이후 SQL·서버 구현 시 이 파일에서 제한값을 반영하고 일치 검증을 추가합니다. 본문의 Unicode 코드 포인트 계산, 이미지 변환 후 저장 한도·축소 크기 등 기능별 검증은 해당 구현 단계에서 완성합니다.
+제한값은 `shared/limits.json`을 기준으로 관리합니다. 2단계에서는 기본 SQL 제약과 DB의 설정 버전 기록을 추가하고 일치 검증을 수행합니다. 제한값을 바꿀 때 새 마이그레이션으로 실제 제약도 함께 변경합니다. 본문의 Unicode 코드 포인트 계산, 이미지 변환 후 저장 한도·축소 크기 등 기능별 검증은 해당 구현 단계에서 완성합니다.
 
 ## 다음 단계와 배포
 
-2단계는 SQL 스키마, 회원 역할·상태, RLS와 비공개 데이터 경계, 최초 운영자 설정입니다. 3단계부터 인증을 연결합니다. 현재 인증 콜백 경로는 자리표시자이며 이메일 링크의 토큰 교환은 수행하지 않습니다.
+다음 3단계에서 초대 가입·이메일 인증·로그인 유지·계정 복구·정지 상태를 화면에 연결합니다. 현재 인증 콜백 경로는 자리표시자이며 이메일 링크의 토큰 교환은 수행하지 않습니다.
 
 저장소: <https://github.com/kittymew/mini-commu>
 
-GitHub Pages 배포 예정 주소: <https://kittymew.github.io/mini-commu/>. 1단계에서는 실제 Pages 배포를 수행하지 않습니다. 현재 워크플로는 검사만 수행합니다.
+GitHub Pages 배포 예정 주소: <https://kittymew.github.io/mini-commu/>. 현재 실제 Pages 배포는 수행하지 않았습니다. 현재 워크플로는 프런트엔드 검사와 별도의 로컬 DB/API 테스트만 수행합니다.
+
+로컬 DB 실행·테스트 명령과 데이터 경계는 [DB 안내](docs/database.md)를 참고하세요. 외부 Supabase 계정 없이 `pnpm db:start --runtime native`로 시작할 수 있습니다.
 
 자세한 내용: [설계](docs/architecture.md), [배포](docs/deployment.md), [운영](docs/operations.md), [검증](docs/verification.md).

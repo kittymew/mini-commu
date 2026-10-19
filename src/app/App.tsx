@@ -56,6 +56,6 @@ export function App() {
         <Route path="*" element={<section className="card placeholder"><span className="eyebrow">404</span><h1>페이지를 찾을 수 없어요</h1><p>주소를 확인하거나 시작 화면으로 돌아가 주세요.</p><Link className="button" to="/">시작 화면으로</Link></section>} />
       </Routes>
     </main>
-    <footer className="site-footer"><span>작은 모임 · mini-commu</span><span>1단계 · 프로젝트 기반 준비</span></footer>
+    <footer className="site-footer"><span>작은 모임 · mini-commu</span><span>서비스 준비 중</span></footer>
   </>
 }

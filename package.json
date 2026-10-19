@@ -14,7 +14,13 @@
     "build": "pnpm typecheck && vite build",
     "preview": "vite preview --host 127.0.0.1",
     "check": "pnpm lint && pnpm build",
-    "test:e2e": "playwright test"
+    "test:e2e": "playwright test",
+    "db:start": "node scripts/supabase.mjs start --exclude studio,functions,analytics,pooler,realtime",
+    "db:stop": "node scripts/supabase.mjs stop",
+    "db:reset": "node scripts/supabase.mjs db reset --local --no-seed",
+    "db:test": "node --test --test-concurrency=1 supabase/tests/*.test.mjs",
+    "db:types": "node scripts/generate-db-types.mjs",
+    "db:types:check": "node scripts/generate-db-types.mjs --check"
   },
   "dependencies": {
     "@supabase/supabase-js": "2.118.0",
@@ -26,6 +32,7 @@
     "@eslint/js": "10.0.1",
     "@playwright/test": "1.64.1",
     "@types/node": "24.19.2",
+    "@types/pg": "8.23.1",
     "@types/react": "19.3.0",
     "@types/react-dom": "19.3.0",
     "@vitejs/plugin-react": "6.1.2",
@@ -33,6 +40,8 @@
     "eslint-plugin-react-hooks": "7.1.1",
     "eslint-plugin-react-refresh": "0.5.7",
     "globals": "17.13.0",
+    "pg": "8.23.1",
+    "supabase": "2.121.0",
     "typescript": "6.0.3",
     "typescript-eslint": "8.71.2",
     "vite": "8.3.4"

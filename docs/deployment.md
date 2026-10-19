@@ -20,3 +20,9 @@
 로컬 브라우저 검증은 저장소 하위 경로로 빌드한 결과에 대한 검증이며 실제 GitHub Pages 호스팅 검증을 대신하지 않습니다. 운영 환경에서 DB 초기화나 로컬 시드를 자동 실행하지 않습니다.
 
 참고: [Vite GitHub Pages 안내](https://vite.dev/guide/static-deploy.html#github-pages), [Supabase API 키](https://supabase.com/docs/guides/getting-started/api-keys).
+
+## 2단계 추가 사항
+
+SQL 마이그레이션과 권한 정책은 로컬 Supabase에서 검증했습니다. 클라우드 연결·SQL 적용은 아직 수행하지 않았습니다. 무료 플랜에 새 프로젝트를 만들 때 Data API 노출 스키마를 `public`으로 제한하고 자동 신규 객체 권한 부여를 끕니다. `private`는 노출하지 않습니다. 마이그레이션 자체에서도 RLS와 명시적 권한 회수를 적용합니다.
+
+운영 배포는 마이그레이션 적용 절차로 수행하고 `db:reset`이나 테스트 픽스처를 실행하지 않습니다. GitHub Actions의 DB 작업은 CI 내부 로컬 서비스에서만 실행하며 원격 Supabase 비밀값을 요구하지 않습니다.
