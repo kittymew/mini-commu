@@ -95,6 +95,7 @@ test('another character can edit own post, conflicts preserve input, comments re
     const second=await secondContext.newPage();await login(second,other.email);await second.goto(`./#/posts/${id}`);await second.getByLabel('현재 캐릭터',{exact:true}).selectOption(other.char)
     await expect(second.getByRole('link',{name:'글 수정',exact:true})).toHaveCount(0)
     await second.getByRole('button',{name:'답글 달기',exact:true}).click();await second.getByLabel('답글 내용',{exact:true}).fill('남겨진 답글');await second.getByRole('button',{name:'답글 등록',exact:true}).click();await expect(second.getByText('남겨진 답글',{exact:true})).toBeVisible()
+    await page.bringToFront()
     await page.evaluate(()=>window.dispatchEvent(new Event('focus')));await expect(page.getByText('남겨진 답글',{exact:true})).toBeVisible()
     await page.getByRole('button',{name:'댓글 삭제',exact:true}).click();await page.getByRole('button',{name:'댓글 삭제 확정',exact:true}).click();await expect(page.getByText('삭제된 댓글입니다.',{exact:true})).toBeVisible();await expect(page.getByText('수정된 부모 이야기',{exact:true})).toHaveCount(0)
     const char=(await owner.client.rpc('create_character',{character_name:'두번째 모습'})).data!;await page.evaluate(()=>window.dispatchEvent(new Event('focus')));await page.getByLabel('현재 캐릭터',{exact:true}).selectOption(char)
