@@ -421,3 +421,7 @@ enabled = true
 # The handler verifies the bearer token with Auth getUser and checks membership.
 verify_jwt = false
 entrypoint = "./functions/profile-image/index.ts"
+
+[functions.post-image]
+verify_jwt = false
+entrypoint = "./functions/post-image/index.ts"

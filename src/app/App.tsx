@@ -8,13 +8,12 @@ import { CharacterProvider } from '../features/characters/CharacterProvider'
 import { useAuth } from '../features/auth/auth'
 
 const CharactersPage = lazy(() => import('../features/characters/CharactersPage').then(module => ({ default: module.CharactersPage })))
-const WritingCharacter = lazy(() => import('../features/characters/WritingCharacter').then(module => ({ default: module.WritingCharacter })))
+const FeedPage = lazy(() => import('../features/posts/FeedPage'))
+const PostEditor = lazy(() => import('../features/posts/PostEditor'))
+const PostPage = lazy(() => import('../features/posts/PostPage'))
+const CategoriesPage = lazy(() => import('../features/posts/CategoriesPage'))
 
 const pages = [
-  { path: '/feed', title: '모임 피드', description: '캐릭터들의 이야기와 공지를 모아 봅니다.', step: '5단계' },
-  { path: '/posts/new', title: '글 작성', description: '선택한 캐릭터로 새로운 이야기를 작성합니다.', step: '5단계' },
-  { path: '/posts/:postId', title: '게시글', description: '글과 이미지, 댓글을 확인합니다.', step: '5단계' },
-  { path: '/posts/:postId/edit', title: '글 수정', description: '내가 작성한 글의 내용을 수정합니다.', step: '5단계' },
   { path: '/activity', title: '내 활동', description: '내 계정으로 작성한 글과 댓글을 모아 봅니다.', step: '6단계' },
   { path: '/exports', title: '내보내기', description: '열람 가능한 이야기를 파일로 보관합니다.', step: '7단계' },
   { path: '/admin', title: '모임 운영', description: '초대와 카테고리, 회원 권한을 관리합니다.', step: '6단계' },
@@ -56,9 +55,14 @@ export function App() {
       <Suspense fallback={<p role="status">화면을 불러오고 있어요…</p>}><Routes><Route path="/" element={<Home />} />
         <Route path="/login" element={<LoginPage />} /><Route path="/signup" element={<SignupPage />} />
         <Route path="/reset-password" element={<ResetPasswordPage />} /><Route path="/auth/callback" element={<CallbackPage />} />
+        <Route path="/feed" element={<MemberGate><FeedPage /></MemberGate>} />
+        <Route path="/posts/new" element={<MemberGate><PostEditor /></MemberGate>} />
+        <Route path="/posts/:postId" element={<MemberGate><PostPage /></MemberGate>} />
+        <Route path="/posts/:postId/edit" element={<MemberGate><PostEditor /></MemberGate>} />
+        <Route path="/categories" element={<MemberGate admin><CategoriesPage /></MemberGate>} />
         <Route path="/characters" element={<MemberGate><CharactersPage /></MemberGate>} />
         <Route path="/settings" element={<MemberGate><SettingsPage /></MemberGate>} />
-        {pages.map(page => <Route key={page.path} path={page.path} element={<MemberGate admin={page.path === '/admin'}>{page.path === '/posts/new' && <WritingCharacter />}<PlaceholderPage {...page} /></MemberGate>} />)}
+        {pages.map(page => <Route key={page.path} path={page.path} element={<MemberGate admin={page.path === '/admin'}><PlaceholderPage {...page} /></MemberGate>} />)}
         <Route path="*" element={<section className="card placeholder"><span className="eyebrow">404</span><h1>페이지를 찾을 수 없어요</h1><p>주소를 확인하거나 시작 화면으로 돌아가 주세요.</p><Link className="button" to="/">시작 화면으로</Link></section>} />
       </Routes></Suspense>
     </main>

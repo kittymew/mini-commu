@@ -64,7 +64,7 @@ test('real character CRUD, profile versions, device-local selection and another 
   await createCharacter(page,'달빛')
   await page.getByLabel('현재 캐릭터',{exact:true}).selectOption(first.id)
   await page.reload();await expect(page.getByLabel('현재 캐릭터',{exact:true})).toHaveValue(first.id)
-  await page.goto('./#/posts/new');await expect(page.getByText('새봄의 이름과 프로필로 작성할 준비가 되었어요.')).toBeVisible()
+  await page.goto('./#/posts/new');await expect(page.getByRole('heading',{name:'새 글 작성',exact:true})).toBeVisible();await expect(page.getByLabel('현재 캐릭터',{exact:true})).toHaveValue(first.id)
   const other=await browser.newContext({baseURL:'http://127.0.0.1:5173/mini-commu/'})
   try{
     const second=await other.newPage();await login(second,account.email)

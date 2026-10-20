@@ -23,7 +23,8 @@
     "db:types:check": "node scripts/generate-db-types.mjs --check",
     "test:auth": "node scripts/test-auth.mjs",
     "db:migrate": "node scripts/supabase.mjs migration up --local",
-    "dev:local": "node scripts/dev-local.mjs"
+    "dev:local": "node scripts/dev-local.mjs",
+    "assets:cleanup": "node scripts/cleanup-assets.mjs"
   },
   "dependencies": {
     "@supabase/supabase-js": "2.118.0",

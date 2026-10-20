@@ -2,7 +2,10 @@ import { createClient } from '@supabase/supabase-js'
 import { processProfile } from './image.mjs'
 import { profileLimits } from './limits.mjs'
 
-export function createProfileHandler({ url, publicKey, serviceKey, origins }) {
+export function createProfileHandler({ url, publicKey, serviceKey, origins, kind = 'profile' }) {
+  const attachment = kind === 'post'
+  const reserve = attachment ? 'reserve_post_asset' : 'reserve_profile_asset'
+  const finalize = attachment ? 'finalize_post_asset' : 'finalize_profile_asset'
   const admin=createClient(url,serviceKey,{auth:{persistSession:false,autoRefreshToken:false}})
   return async request => {
     const origin=request.headers.get('origin')
@@ -21,7 +24,7 @@ export function createProfileHandler({ url, publicKey, serviceKey, origins }) {
       const {data:{user},error}=await client.auth.getUser(authorization.slice(7))
       if (error || !user) return reply(401,{error:'AUTH_REQUIRED'})
       userId=user.id
-      const reserved=await client.rpc('reserve_profile_asset')
+      const reserved=await client.rpc(reserve)
       if (reserved.error) return reply(reserved.error.message==='UPLOAD_RATE_LIMIT'?429:403,{error:reserved.error.message==='UPLOAD_RATE_LIMIT'?'UPLOAD_RATE_LIMIT':'ACTIVE_MEMBER_REQUIRED'})
       assetId=reserved.data
       const mime=(request.headers.get('content-type')??'').split(';')[0]
@@ -41,19 +44,29 @@ export function createProfileHandler({ url, publicKey, serviceKey, origins }) {
       } finally { await reader.cancel().catch(()=>{}) }
       const bytes=new Uint8Array(size); let offset=0
       for (const chunk of chunks) {bytes.set(chunk,offset);offset+=chunk.length}
+      const temporary=`temporary/${assetId}/source`
+      if(attachment){
+        const uploaded=await admin.storage.from('community').upload(temporary,bytes,{contentType:mime,upsert:false})
+        if(uploaded.error)throw new Error('UPLOAD_FAILED')
+        paths.push(temporary)
+      }
       const {main,thumbnail}=processProfile(bytes,mime)
       for (const [name,data] of [['main',main],['thumb',thumbnail]]) {
-        const path=`profiles/${assetId}/${name}.webp`
+        const path=`${attachment?'attachments':'profiles'}/${assetId}/${name}.webp`
         const upload=await admin.storage.from('community').upload(path,data,{contentType:'image/webp',cacheControl:'60',upsert:false})
         if (upload.error) throw new Error('UPLOAD_FAILED')
         paths.push(path)
       }
-      const result=await admin.rpc('finalize_profile_asset',{target_id:assetId,owner_id:userId,stored_bytes:main.length+thumbnail.length,accepted:true})
+      if(attachment){
+        const removed=await admin.storage.from('community').remove([temporary])
+        if(removed.error)throw new Error('UPLOAD_FAILED')
+      }
+      const result=await admin.rpc(finalize,{target_id:assetId,owner_id:userId,stored_bytes:main.length+thumbnail.length,accepted:true})
       if (result.error) throw new Error('UPLOAD_FAILED')
       return reply(200,{assetId})
     } catch(error) {
       if (paths.length) await admin.storage.from('community').remove(paths)
-      if (assetId) await admin.rpc('finalize_profile_asset',{target_id:assetId,owner_id:userId,stored_bytes:1,accepted:false})
+      if (assetId) await admin.rpc(finalize,{target_id:assetId,owner_id:userId,stored_bytes:1,accepted:false})
       const known=['IMAGE_TOO_LARGE','IMAGE_DIMENSIONS','ANIMATED_IMAGE','INVALID_IMAGE','UPLOAD_FAILED']
       const code=known.includes(error?.message)?error.message:'INVALID_IMAGE'
       return reply(code==='UPLOAD_FAILED'?503:code==='IMAGE_TOO_LARGE'?413:400,{error:code})
