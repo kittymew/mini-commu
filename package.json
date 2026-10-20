@@ -20,7 +20,10 @@
     "db:reset": "node scripts/supabase.mjs db reset --local --no-seed",
     "db:test": "node --test --test-concurrency=1 supabase/tests/*.test.mjs",
     "db:types": "node scripts/generate-db-types.mjs",
-    "db:types:check": "node scripts/generate-db-types.mjs --check"
+    "db:types:check": "node scripts/generate-db-types.mjs --check",
+    "test:auth": "node scripts/test-auth.mjs",
+    "db:migrate": "node scripts/supabase.mjs migration up --local",
+    "dev:local": "node scripts/dev-local.mjs"
   },
   "dependencies": {
     "@supabase/supabase-js": "2.118.0",

@@ -30,9 +30,11 @@ jobs:
       - run: npm install --global pnpm@11.25.0
       - run: pnpm install --frozen-lockfile
       - run: pnpm db:start --runtime native > "$RUNNER_TEMP/supabase-start.log"
-      - run: pnpm db:reset
+      - run: pnpm db:migrate
       - run: pnpm db:test
       - run: pnpm db:types:check
+      - run: pnpm exec playwright install --with-deps chromium
+      - run: pnpm test:auth
       - name: Stop local database
         if: always()
         run: pnpm db:stop

@@ -315,6 +315,22 @@ isOneToOne: false
 { Args: { "before_id"?: number,"page_size"?: number }; Returns: {
               "action": string,"actor_user_id": string,"created_at": string,"id": number,"reason": string,"target_user_id": string
             }[]
+                           },
+"issue_invite":
+{ Args: { "use_limit"?: number,"valid_days"?: number }; Returns: {
+              "code": string,"invite_id": string
+            }[]
+                           },
+"list_invites":
+{ Args: Record<PropertyKey, never>; Returns: {
+              "created_at": string,"expires_at": string,"id": string,"max_uses": number,"revoked_at": string,"used_count": number
+            }[]
+                           },
+"redeem_invite":
+{ Args: { "invite_code": string }; Returns: string
+                           },
+"update_invite":
+{ Args: { "expiry": string,"revoke_code"?: boolean,"target_id": string,"use_limit": number }; Returns: undefined
                            }
           }
           Enums: {
