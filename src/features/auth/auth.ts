@@ -14,6 +14,7 @@ const pendingKey = 'mini-commu:pending-invite'
 const recoveryKey = 'mini-commu:recovery'
 
 function publish(next: AuthState) { state = next; listeners.forEach(listener => listener()) }
+export function getAuthState() { return state }
 export function useAuth() {
   return useSyncExternalStore(listener => { listeners.add(listener); return () => listeners.delete(listener) }, () => state)
 }

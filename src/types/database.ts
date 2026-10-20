@@ -34,14 +34,14 @@ export type Database = {
                   ]
                 },"characters": {
                   Row: {
-                    "avatar_asset_id": string | null,"bio": string,"created_at": string,"id": string,"name": string,"status": string,"updated_at": string
+                    "avatar_asset_id": string | null,"bio": string,"created_at": string,"id": string,"name": string,"status": string,"updated_at": string,"version": number
                   }
                   ComputedFields: never
                   Insert: {
-                    "avatar_asset_id"?: string | null,"bio"?: string,"created_at"?: string,"id"?: string,"name": string,"status"?: string,"updated_at"?: string
+                    "avatar_asset_id"?: string | null,"bio"?: string,"created_at"?: string,"id"?: string,"name": string,"status"?: string,"updated_at"?: string,"version"?: number
                   }
                   Update: {
-                    "avatar_asset_id"?: string | null,"bio"?: string,"created_at"?: string,"id"?: string,"name"?: string,"status"?: string,"updated_at"?: string
+                    "avatar_asset_id"?: string | null,"bio"?: string,"created_at"?: string,"id"?: string,"name"?: string,"status"?: string,"updated_at"?: string,"version"?: number
                   }
                   Relationships: [
                     {
@@ -306,9 +306,20 @@ isOneToOne: false
 "change_member_status":
 { Args: { "new_status": string,"reason": string,"target_user_id": string }; Returns: undefined
                            },
+"create_character":
+{ Args: { "avatar_id"?: string,"character_bio"?: string,"character_name": string,"request_id"?: string }; Returns: string
+                           },
 "current_membership":
 { Args: Record<PropertyKey, never>; Returns: {
               "role": string,"status": string
+            }[]
+                           },
+"finalize_profile_asset":
+{ Args: { "accepted": boolean,"owner_id": string,"stored_bytes": number,"target_id": string }; Returns: undefined
+                           },
+"get_asset_paths":
+{ Args: { "asset_ids": (string)[] }; Returns: {
+              "id": string,"storage_path": string,"thumbnail_path": string
             }[]
                            },
 "get_moderation_logs":
@@ -326,8 +337,34 @@ isOneToOne: false
               "created_at": string,"expires_at": string,"id": string,"max_uses": number,"revoked_at": string,"used_count": number
             }[]
                            },
+"list_my_characters":
+{ Args: { "page_offset"?: number }; Returns: {
+              "avatar_asset_id": string | null,
+"bio": string,
+"created_at": string,
+"id": string,
+"name": string,
+"status": string,
+"updated_at": string,
+"version": number
+            }[]
+                          SetofOptions: {
+        from: "*"
+        to: "characters"
+        isOneToOne: false
+        isSetofReturn: true
+      } },
 "redeem_invite":
 { Args: { "invite_code": string }; Returns: string
+                           },
+"reserve_profile_asset":
+{ Args: Record<PropertyKey, never>; Returns: string
+                           },
+"set_character_status":
+{ Args: { "expected_version": number,"new_status": string,"target_id": string }; Returns: undefined
+                           },
+"update_character":
+{ Args: { "avatar_id"?: string,"character_bio": string,"character_name": string,"expected_version": number,"target_id": string }; Returns: undefined
                            },
 "update_invite":
 { Args: { "expiry": string,"revoke_code"?: boolean,"target_id": string,"use_limit": number }; Returns: undefined

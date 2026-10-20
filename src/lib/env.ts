@@ -1,4 +1,4 @@
-type PublicEnv = { supabaseUrl: string; supabaseKey: string; siteUrl: string }
+type PublicEnv = { supabaseUrl: string; supabaseKey: string; siteUrl: string; profileUploadUrl: string }
 type EnvResult = { ready: true; values: PublicEnv } | { ready: false; issues: string[] }
 
 function isHttpUrl(value: string): boolean {
@@ -12,13 +12,15 @@ export function readPublicEnv(source: Record<string, string | undefined>): EnvRe
   const supabaseUrl = source.VITE_SUPABASE_URL?.trim() ?? ''
   const supabaseKey = source.VITE_SUPABASE_PUBLISHABLE_KEY?.trim() ?? ''
   const siteUrl = source.VITE_SITE_URL?.trim() ?? ''
+  const profileUploadUrl = source.VITE_PROFILE_UPLOAD_URL?.trim() || `${supabaseUrl}/functions/v1/profile-image`
   const issues: string[] = []
+  if (!isHttpUrl(profileUploadUrl)) issues.push('프로필 업로드 서버 URL을 확인해 주세요.')
   if (!isHttpUrl(supabaseUrl)) issues.push('VITE_SUPABASE_URL에 올바른 프로젝트 URL을 설정해 주세요.')
   if (!supabaseKey.startsWith('sb_publishable_')) issues.push('VITE_SUPABASE_PUBLISHABLE_KEY에 공개용 publishable key를 설정해 주세요.')
   if (!isHttpUrl(siteUrl) || (isHttpUrl(siteUrl) && (new URL(siteUrl).hash || new URL(siteUrl).search))) {
     issues.push('VITE_SITE_URL에 쿼리와 해시가 없는 사이트 URL을 설정해 주세요.')
   }
-  return issues.length ? { ready: false, issues } : { ready: true, values: { supabaseUrl, supabaseKey, siteUrl } }
+  return issues.length ? { ready: false, issues } : { ready: true, values: { supabaseUrl, supabaseKey, siteUrl, profileUploadUrl } }
 }
 
 export const publicEnv = readPublicEnv(import.meta.env)

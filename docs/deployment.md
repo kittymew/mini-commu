@@ -1,6 +1,6 @@
 # 배포 준비
 
-현재 3단계 인증 기능을 로컬에서 검증했습니다. GitHub Pages 활성화와 실제 배포는 아직 수행하지 않았습니다. `.github/workflows/ci.yml`은 검증만 수행하고 게시하지 않습니다.
+현재 4단계 인증·캐릭터·프로필 기능을 로컬에서 검증했습니다. GitHub Pages 활성화와 실제 배포는 아직 수행하지 않았습니다. `.github/workflows/ci.yml`은 검증만 수행하고 게시하지 않습니다.
 
 - 저장소: `kittymew/mini-commu` (public)
 - 기본 브랜치: `main`
@@ -27,3 +27,9 @@
 SQL 마이그레이션과 권한 정책은 로컬 Supabase에서 검증했습니다. 클라우드 연결·SQL 적용은 아직 수행하지 않았습니다. 무료 플랜에 새 프로젝트를 만들 때 Data API 노출 스키마를 `public`으로 제한하고 자동 신규 객체 권한 부여를 끕니다. `private`는 노출하지 않습니다. 마이그레이션 자체에서도 RLS와 명시적 권한 회수를 적용합니다.
 
 운영 배포는 마이그레이션 적용 절차로 수행하고 `db:reset`이나 테스트 픽스처를 실행하지 않습니다. GitHub Actions의 DB 작업은 CI 내부 로컬 서비스에서만 실행하며 원격 Supabase 비밀값을 요구하지 않습니다.
+
+## 프로필 Edge Function 배포 전 확인
+
+`profile-image`를 Supabase에 별도로 배포하고 `APP_ORIGINS=https://kittymew.github.io`를 설정합니다. 함수는 Auth getUser와 회원 RPC로 요청자를 검증합니다. npm 패키지 내 WASM 파일을 포함한 배포 번들/실제 Deno 런타임, Free CPU·메모리 범위에서 최대 입력 처리, CORS, 정지 중 업로드, 실패 복구를 외부 환경에서 다시 확인합니다. 현재 로컬 검증은 같은 처리 코드의 Node 어댑터와 실제 Supabase DB/Storage를 사용했습니다.
+
+브라우저 기본 업로드 주소는 Supabase URL에서 생성합니다. `VITE_PROFILE_UPLOAD_URL`을 운영에서 별도 지정할 경우 신뢰된 함수 주소만 사용합니다. 유료 Storage 이미지 변환 기능은 켜지 않습니다.

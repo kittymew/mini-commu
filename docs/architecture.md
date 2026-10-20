@@ -4,7 +4,7 @@
 
 1단계에서는 앱 진입점과 화면 경로, 공통 설정을 준비합니다. URL 예시는 `/mini-commu/#/characters`이며 서버가 받는 경로는 `/mini-commu/`입니다. Vite `base`는 저장소 이름에 맞춰 `/mini-commu/`로 고정했습니다. 저장소 이름이 바뀌면 `vite.config.ts`와 사이트 URL 및 E2E 기본 주소를 함께 수정합니다.
 
-등록한 경로: `/`, `/login`, `/signup`, `/reset-password`, `/auth/callback`, `/feed`, `/characters`, `/posts/new`, `/posts/:postId`, `/posts/:postId/edit`, `/activity`, `/exports`, `/settings`, `/admin`. 알 수 없는 해시 경로는 404 안내를 표시합니다. 인증·가입·복구·계정 설정 경로는 실제 Auth와 연결되어 있습니다. 콘텐츠 경로는 활성 회원만 볼 수 있는 안내 화면이며 `/admin`은 운영자로 제한합니다. 서버 RLS는 화면과 별도로 모든 요청을 검사합니다.
+등록한 경로: `/`, `/login`, `/signup`, `/reset-password`, `/auth/callback`, `/feed`, `/characters`, `/posts/new`, `/posts/:postId`, `/posts/:postId/edit`, `/activity`, `/exports`, `/settings`, `/admin`. 알 수 없는 해시 경로는 404 안내를 표시합니다. 인증·가입·복구·계정 설정 경로는 실제 Auth와 연결되어 있습니다. 캐릭터 경로는 실제 관리 화면이고 나머지 콘텐츠 경로는 활성 회원만 볼 수 있는 안내 화면이며 `/admin`은 운영자로 제한합니다. 서버 RLS는 화면과 별도로 모든 요청을 검사합니다.
 
 Supabase 클라이언트는 `src/lib/supabase.ts`에서 설정이 유효할 때만 생성합니다. 세션 지속·자동 갱신과 PKCE를 사용하며, 해시 라우터와 충돌하지 않도록 자동 URL 감지는 끕니다. 앱 초기화 시 query의 인증 code를 메모리에 옮기고 URL을 지운 뒤 `/auth/callback`에서 명시적으로 교환합니다. 초대 코드와 비밀번호는 URL에 넣지 않습니다.
 
@@ -24,3 +24,9 @@ Supabase 클라이언트는 `src/lib/supabase.ts`에서 설정이 유효할 때�
 - [React Router HashRouter](https://reactrouter.com/api/declarative-routers/HashRouter)
 - [Supabase 설치](https://supabase.com/docs/reference/javascript/installing)
 - [Supabase 클라이언트 초기화](https://supabase.com/docs/reference/javascript/initializing)
+
+## 4단계 캐릭터 상태와 이미지
+
+`CharacterProvider`가 회원별 목록과 기기별 선택을 관리합니다. 인증 화면의 마운트를 유지하면서 계정/복구 상태가 변하면 데이터만 비우므로 비밀번호 변경 완료 안내가 사라지지 않습니다. 늦은 응답과 선택 저장은 현재 인증 계정까지 확인합니다. 캐릭터 화면은 지연 로딩해 초기 번들 크기를 제한합니다.
+
+프로필은 `profile-image`의 동일 처리 함수를 로컬 Node HTTP 어댑터와 클라우드 Deno 진입점에서 사용합니다. 실제 업로드는 서버 키로 처리하며 브라우저 Storage 쓰기 권한은 열지 않습니다. 처리 완료된 자산만 캐릭터가 참조할 수 있습니다. 세부 제한과 스냅샷 트리거는 [캐릭터 안내](characters.md)에 정리합니다.

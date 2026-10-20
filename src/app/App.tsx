@@ -1,14 +1,17 @@
-import { useEffect, useRef } from 'react'
+import { lazy, Suspense, useEffect, useRef } from 'react'
 import { Link, NavLink, Route, Routes, useLocation } from 'react-router'
 import { PlaceholderPage } from '../components/PlaceholderPage'
 import { appConfig } from '../lib/config'
 import { publicEnv } from '../lib/env'
 import { CallbackPage, LoginPage, MemberGate, ResetPasswordPage, SettingsPage, SignupPage } from '../features/auth/AuthPages'
+import { CharacterProvider } from '../features/characters/CharacterProvider'
 import { useAuth } from '../features/auth/auth'
+
+const CharactersPage = lazy(() => import('../features/characters/CharactersPage').then(module => ({ default: module.CharactersPage })))
+const WritingCharacter = lazy(() => import('../features/characters/WritingCharacter').then(module => ({ default: module.WritingCharacter })))
 
 const pages = [
   { path: '/feed', title: '모임 피드', description: '캐릭터들의 이야기와 공지를 모아 봅니다.', step: '5단계' },
-  { path: '/characters', title: '내 캐릭터', description: '캐릭터를 만들고 활동할 캐릭터를 선택합니다.', step: '4단계' },
   { path: '/posts/new', title: '글 작성', description: '선택한 캐릭터로 새로운 이야기를 작성합니다.', step: '5단계' },
   { path: '/posts/:postId', title: '게시글', description: '글과 이미지, 댓글을 확인합니다.', step: '5단계' },
   { path: '/posts/:postId/edit', title: '글 수정', description: '내가 작성한 글의 내용을 수정합니다.', step: '5단계' },
@@ -43,21 +46,22 @@ export function App() {
   const { pathname } = useLocation()
   const mainRef = useRef<HTMLElement>(null)
   useEffect(() => { mainRef.current?.focus(); window.scrollTo(0, 0) }, [pathname])
-  return <>
+  return <CharacterProvider>
     <a className="skip-link" href="#main" onClick={event => { event.preventDefault(); mainRef.current?.focus() }}>본문으로 건너뛰기</a>
     <header className="site-header"><div className="header-inner">
       <Link className="brand" to="/" aria-label="작은 모임 시작 화면"><span className="brand-mark" aria-hidden="true">m.</span>{appConfig.name}</Link>
       <nav aria-label="주 메뉴"><NavLink to="/feed">피드</NavLink><NavLink to="/characters">캐릭터</NavLink>{auth.user ? <NavLink to="/settings">계정 설정</NavLink> : <NavLink to="/login">로그인</NavLink>}</nav>
     </div></header>
     <main id="main" ref={mainRef} tabIndex={-1} className="page-container">
-      <Routes><Route path="/" element={<Home />} />
+      <Suspense fallback={<p role="status">화면을 불러오고 있어요…</p>}><Routes><Route path="/" element={<Home />} />
         <Route path="/login" element={<LoginPage />} /><Route path="/signup" element={<SignupPage />} />
         <Route path="/reset-password" element={<ResetPasswordPage />} /><Route path="/auth/callback" element={<CallbackPage />} />
+        <Route path="/characters" element={<MemberGate><CharactersPage /></MemberGate>} />
         <Route path="/settings" element={<MemberGate><SettingsPage /></MemberGate>} />
-        {pages.map(page => <Route key={page.path} path={page.path} element={<MemberGate admin={page.path === '/admin'}><PlaceholderPage {...page} /></MemberGate>} />)}
+        {pages.map(page => <Route key={page.path} path={page.path} element={<MemberGate admin={page.path === '/admin'}>{page.path === '/posts/new' && <WritingCharacter />}<PlaceholderPage {...page} /></MemberGate>} />)}
         <Route path="*" element={<section className="card placeholder"><span className="eyebrow">404</span><h1>페이지를 찾을 수 없어요</h1><p>주소를 확인하거나 시작 화면으로 돌아가 주세요.</p><Link className="button" to="/">시작 화면으로</Link></section>} />
-      </Routes>
+      </Routes></Suspense>
     </main>
     <footer className="site-footer"><span>작은 모임 · mini-commu</span><span>서비스 준비 중</span></footer>
-  </>
+  </CharacterProvider>
 }
