@@ -343,6 +343,12 @@ isOneToOne: false
 "delete_post":
 { Args: { "expected_version": number,"target_id": string }; Returns: undefined
                            },
+"export_batch":
+{ Args: { "post_ids": (string)[],"with_comments"?: boolean,"with_images"?: boolean }; Returns: Json
+                           },
+"export_manifest":
+{ Args: { "after_id"?: string,"after_time"?: string,"category_filter"?: string,"from_time"?: string,"snapshot_time"?: string,"until_time"?: string }; Returns: Json
+                           },
 "finalize_post_asset":
 { Args: { "accepted": boolean,"owner_id": string,"stored_bytes": number,"target_id": string }; Returns: undefined
                            },
@@ -458,6 +464,9 @@ isOneToOne: false
                            },
 "update_post":
 { Args: { "category_id": string,"document": Json,"expected_version": number,"image_ids"?: (string)[],"post_title": string,"target_id": string }; Returns: undefined
+                           },
+"validate_export":
+{ Args: { "expected": Json,"with_comments"?: boolean,"with_images"?: boolean }; Returns: undefined
                            }
           }
           Enums: {

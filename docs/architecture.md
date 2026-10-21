@@ -4,7 +4,7 @@
 
 1단계에서는 앱 진입점과 화면 경로, 공통 설정을 준비합니다. URL 예시는 `/mini-commu/#/characters`이며 서버가 받는 경로는 `/mini-commu/`입니다. Vite `base`는 저장소 이름에 맞춰 `/mini-commu/`로 고정했습니다. 저장소 이름이 바뀌면 `vite.config.ts`와 사이트 URL 및 E2E 기본 주소를 함께 수정합니다.
 
-등록한 경로: `/`, `/login`, `/signup`, `/reset-password`, `/auth/callback`, `/feed`, `/characters`, `/posts/new`, `/posts/:postId`, `/posts/:postId/edit`, `/activity`, `/exports`, `/settings`, `/admin`, `/categories`. 알 수 없는 해시 경로는 404 안내를 표시합니다. 인증·가입·복구·계정 설정 경로는 실제 Auth와 연결되어 있습니다. 캐릭터·피드·일반글/투표글 작성·상세·수정·카테고리·내 활동·운영 경로는 실제 기능입니다. 피드 검색과 형식/공지/캐릭터 필터를 제공하며 내보내기만 다음 단계 안내 화면입니다. `/admin`은 운영자로 제한합니다. 서버 RLS는 화면과 별도로 모든 요청을 검사합니다.
+등록한 경로: `/`, `/login`, `/signup`, `/reset-password`, `/auth/callback`, `/feed`, `/characters`, `/posts/new`, `/posts/:postId`, `/posts/:postId/edit`, `/activity`, `/exports`, `/settings`, `/admin`, `/categories`. 알 수 없는 해시 경로는 404 안내를 표시합니다. 인증·가입·복구·계정 설정 경로는 실제 Auth와 연결되어 있습니다. 캐릭터·피드·일반글/투표글 작성·상세·수정·카테고리·내 활동·운영 경로는 실제 기능입니다. 피드 검색과 형식/공지/캐릭터 필터, 활성 회원의 PDF/JSON/이미지 ZIP 내보내기를 제공합니다. `/admin`은 운영자로 제한합니다. 서버 RLS는 화면과 별도로 모든 요청을 검사합니다.
 
 Supabase 클라이언트는 `src/lib/supabase.ts`에서 설정이 유효할 때만 생성합니다. 세션 지속·자동 갱신과 PKCE를 사용하며, 해시 라우터와 충돌하지 않도록 자동 URL 감지는 끕니다. 앱 초기화 시 query의 인증 code를 메모리에 옮기고 URL을 지운 뒤 `/auth/callback`에서 명시적으로 교환합니다. 초대 코드와 비밀번호는 URL에 넣지 않습니다.
 
@@ -38,3 +38,7 @@ Supabase 클라이언트는 `src/lib/supabase.ts`에서 설정이 유효할 때�
 ## 6단계 투표와 운영
 
 투표 원본은 비공개 스키마에 두고 공개 시점별 DTO만 반환합니다. 게시글 잠금으로 참여·설정 변경·마감을 직렬화합니다. 검색·공지·고정은 `browse_posts`, 계정별 활동은 `list_my_activity`를 사용하며 모두 정상 공개 상태만 조회합니다. 운영 UI는 별도 회원/기록/숨김 메타데이터 RPC와 기존 초대/역할 API를 연결합니다. 자세한 동작은 [6단계 안내](community.md)에 정리했습니다.
+
+## 7단계 내보내기
+
+`/exports`를 지연 로딩하며 200개 커서로 대상 목록을 수집한 뒤 한 분할씩 준비합니다. SQL의 명시적 공개 DTO와 체크섬 재검사로 회원 권한과 공개 범위를 유지합니다. fflate의 취소 가능한 비동기 ZIP과 실제 인증 이미지 바이트를 사용하며, PDF는 자체 호스팅 Noto Sans KR을 로딩한 브라우저 인쇄 화면으로 만듭니다. 파일·Blob URL은 메모리에만 유지하고 세션 변경 때 해제합니다. [범위와 한계](exports.md)를 참고하세요.
