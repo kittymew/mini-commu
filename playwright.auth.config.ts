@@ -12,11 +12,11 @@ export default defineConfig({
     baseURL: 'http://127.0.0.1:5173/mini-commu/',
     // Auth traces/screenshots can contain credentials. Do not record them.
     trace: 'off', screenshot: 'off', video: 'off',
-    channel: process.env.PLAYWRIGHT_CHANNEL || undefined,
   },
   projects: [
-    { name: 'desktop', use: { ...devices['Desktop Chrome'] } },
-    { name: 'mobile', use: { ...devices['Pixel 7'] } },
+    { name: 'desktop', use: { ...devices['Desktop Chrome'], channel: process.env.PLAYWRIGHT_CHANNEL || undefined } },
+    { name: 'mobile', use: { ...devices['Pixel 7'], channel: process.env.PLAYWRIGHT_CHANNEL || undefined } },
+    { name: 'webkit-mobile', use: { ...devices['iPhone 13'] } },
   ],
   webServer: {
     command: 'pnpm build && pnpm preview --port 5173 --strictPort',

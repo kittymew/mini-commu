@@ -10,11 +10,11 @@ export default defineConfig({
     baseURL: 'http://127.0.0.1:4173/mini-commu/',
     trace: 'retain-on-failure',
     screenshot: 'only-on-failure',
-    channel: process.env.PLAYWRIGHT_CHANNEL || undefined,
   },
   projects: [
-    { name: 'desktop', use: { ...devices['Desktop Chrome'] } },
-    { name: 'mobile', use: { ...devices['Pixel 7'] } },
+    { name: 'desktop', use: { ...devices['Desktop Chrome'], channel: process.env.PLAYWRIGHT_CHANNEL || undefined } },
+    { name: 'mobile', use: { ...devices['Pixel 7'], channel: process.env.PLAYWRIGHT_CHANNEL || undefined } },
+    { name: 'webkit-mobile', use: { ...devices['iPhone 13'] } },
   ],
   webServer: {
     command: 'pnpm preview --port 4173 --strictPort',

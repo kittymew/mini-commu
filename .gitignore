@@ -13,3 +13,6 @@ supabase/.temp/
 supabase/.branches/
 
 .supabase-local/
+
+# Generated from the pinned npm package before Edge deployment.
+supabase/functions/_shared/magick.wasm

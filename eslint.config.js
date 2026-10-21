@@ -9,7 +9,7 @@ export default tseslint.config(
   js.configs.recommended,
   ...tseslint.configs.recommended,
   { files: ['**/*.{ts,tsx}'], languageOptions: { globals: globals.browser } },
-  { files: ['*.{js,ts}', 'tests/**/*.ts', 'scripts/**/*.mjs', 'supabase/tests/**/*.mjs', 'supabase/functions/**/*.mjs'], languageOptions: { globals: globals.node } },
+  { files: ['*.{js,ts}', 'tests/**/*.ts', 'tests/**/*.mjs', 'scripts/**/*.mjs', 'supabase/tests/**/*.mjs', 'supabase/functions/**/*.mjs'], languageOptions: { globals: globals.node } },
   { files: ['supabase/functions/**/index.ts'], languageOptions: { globals: { Deno: 'readonly' } } },
   {
     files: ['src/**/*.{ts,tsx}'],

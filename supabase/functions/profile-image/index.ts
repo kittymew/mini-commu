@@ -1,7 +1,7 @@
 import { initializeImages } from './image.mjs'
 import { createProfileHandler } from './handler.mjs'
 
-const wasm = await Deno.readFile(new URL(import.meta.resolve('@imagemagick/magick-wasm/magick.wasm')))
+const wasm = await Deno.readFile(new URL('../_shared/magick.wasm', import.meta.url))
 await initializeImages(wasm)
 Deno.serve(createProfileHandler({
   url: Deno.env.get('SUPABASE_URL')!,

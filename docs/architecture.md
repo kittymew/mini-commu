@@ -42,3 +42,9 @@ Supabase 클라이언트는 `src/lib/supabase.ts`에서 설정이 유효할 때�
 ## 7단계 내보내기
 
 `/exports`를 지연 로딩하며 200개 커서로 대상 목록을 수집한 뒤 한 분할씩 준비합니다. SQL의 명시적 공개 DTO와 체크섬 재검사로 회원 권한과 공개 범위를 유지합니다. fflate의 취소 가능한 비동기 ZIP과 실제 인증 이미지 바이트를 사용하며, PDF는 자체 호스팅 Noto Sans KR을 로딩한 브라우저 인쇄 화면으로 만듭니다. 파일·Blob URL은 메모리에만 유지하고 세션 변경 때 해제합니다. [범위와 한계](exports.md)를 참고하세요.
+
+## 8단계 검증과 배포 경계
+
+Chromium 데스크톱·Pixel 7 및 WebKit iPhone 13에서 같은 인증 E2E를 실행합니다. PDF 파일 생성은 Chromium 전용이고 WebKit은 인쇄 준비·미디어·종료 상태를 검증합니다. `tests/deployment`는 운영 공개 설정 검사, `tests/edge`는 실제 Deno 진입점의 JWT·WASM·Storage 경로를 다룹니다. WASM은 고정된 npm 의존성에서 준비해 두 Edge 함수의 `static_files`에 포함합니다.
+
+CI의 두 검증 작업이 성공해야 조건부 Pages 작업이 실행됩니다. 운영 공개 설정과 명시적 활성화 변수가 없으면 사이트를 게시하지 않습니다. backend 배포·비밀·SMTP·백업은 프런트엔드 워크플로와 분리합니다. [배포 절차](deployment.md)와 [인수표](acceptance.md)를 참고하세요.

@@ -1,4 +1,4 @@
-name: Validate
+name: Validate and deploy
 on:
   push:
     branches: [main]
@@ -6,9 +6,12 @@ on:
   workflow_dispatch:
 permissions:
   contents: read
+concurrency:
+  group: validate-${{ github.ref }}
+  cancel-in-progress: true
 jobs:
   check:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
       - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7
@@ -16,8 +19,10 @@ jobs:
           node-version: '24'
       - run: npm install --global pnpm@11.25.0
       - run: pnpm install --frozen-lockfile
+      - run: pnpm edge:prepare
+      - run: pnpm test:deployment
       - run: pnpm check
-      - run: pnpm exec playwright install --with-deps chromium
+      - run: pnpm exec playwright install --with-deps chromium webkit
       - run: pnpm test:e2e
   database:
     runs-on: ubuntu-24.04
@@ -31,10 +36,52 @@ jobs:
       - run: pnpm install --frozen-lockfile
       - run: pnpm db:start --runtime native > "$RUNNER_TEMP/supabase-start.log"
       - run: pnpm db:migrate
+      - run: pnpm edge:prepare
+      - name: Start local Edge runtime
+        run: node scripts/supabase.mjs functions serve > "$RUNNER_TEMP/edge-runtime.log" 2>&1 &
+      - run: pnpm test:edge
       - run: pnpm db:test
       - run: pnpm db:types:check
-      - run: pnpm exec playwright install --with-deps chromium
+      - run: node scripts/supabase.mjs db lint --local --level warning
+      - run: pnpm exec playwright install --with-deps chromium webkit
       - run: pnpm test:auth
       - name: Stop local database
         if: always()
         run: pnpm db:stop
+  pages:
+    needs: [check, database]
+    if: github.ref == 'refs/heads/main' && github.event_name != 'pull_request' && vars.ENABLE_PAGES_DEPLOY == 'true'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    permissions:
+      contents: read
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    concurrency:
+      group: github-pages
+      cancel-in-progress: false
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7
+        with:
+          node-version: '24'
+      - run: npm install --global pnpm@11.25.0
+      - run: pnpm install --frozen-lockfile
+      - name: Build configured production site
+        run: pnpm build:pages
+        env:
+          VITE_SUPABASE_URL: ${{ vars.VITE_SUPABASE_URL }}
+          VITE_SUPABASE_PUBLISHABLE_KEY: ${{ vars.VITE_SUPABASE_PUBLISHABLE_KEY }}
+          VITE_SITE_URL: https://kittymew.github.io/mini-commu/
+      - uses: actions/configure-pages@983d7736d9b0ae728b81ab479565c72886d7745b # v5
+      - uses: actions/upload-pages-artifact@7b1f4a764d45c48632c6b24a0339c27f5614fb0b # v4
+        with:
+          path: dist
+      - name: Deploy
+        id: deployment
+        uses: actions/deploy-pages@d6db90164ac5ed86f2b6aed7e0febac5b3c0c03e # v4
+      - name: Check published HTML and assets
+        run: pnpm smoke:pages

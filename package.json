@@ -24,7 +24,12 @@
     "test:auth": "node scripts/test-auth.mjs",
     "db:migrate": "node scripts/supabase.mjs migration up --local",
     "dev:local": "node scripts/dev-local.mjs",
-    "assets:cleanup": "node scripts/cleanup-assets.mjs"
+    "assets:cleanup": "node scripts/cleanup-assets.mjs",
+    "test:deployment": "node --test tests/deployment/*.test.mjs",
+    "build:pages": "node scripts/validate-pages-env.mjs && pnpm build",
+    "smoke:pages": "node scripts/smoke-pages.mjs",
+    "edge:prepare": "node scripts/prepare-edge.mjs",
+    "test:edge": "node --test --test-concurrency=1 tests/edge/*.test.mjs"
   },
   "dependencies": {
     "@fontsource/noto-sans-kr": "5.3.1",

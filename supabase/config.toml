@@ -421,7 +421,9 @@ enabled = true
 # The handler verifies the bearer token with Auth getUser and checks membership.
 verify_jwt = false
 entrypoint = "./functions/profile-image/index.ts"
+static_files = ["./functions/_shared/magick.wasm"]
 
 [functions.post-image]
 verify_jwt = false
 entrypoint = "./functions/post-image/index.ts"
+static_files = ["./functions/_shared/magick.wasm"]

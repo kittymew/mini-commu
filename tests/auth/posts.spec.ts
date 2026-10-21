@@ -144,3 +144,14 @@ test('feed loads another page and removes newly hidden content on refresh',async
   await expect(page.getByRole('link',{name:'페이지글 0',exact:true})).toHaveCount(0)
   await expect(page.locator('.feed-card')).toHaveCount(22)
 })
+
+test('the same account can find and edit its post from an independent device session',async({page,browser})=>{
+  const account=await member(),id=await apiPost(account,'다른 기기에서 이어 쓰는 글')
+  await login(page,account.email);await page.goto(`./#/posts/${id}`);await expect(page.getByRole('heading',{name:'다른 기기에서 이어 쓰는 글',exact:true})).toBeVisible()
+  const context=await browser.newContext({baseURL:'http://127.0.0.1:5173/mini-commu/'})
+  try{
+    const second=await context.newPage();await login(second,account.email);await second.getByRole('link',{name:/다른 기기에서 이어 쓰는 글/}).click();await expect(second).toHaveURL(new RegExp(`#\\/posts\\/${id}$`))
+    await second.getByRole('link',{name:'글 수정',exact:true}).click();await second.getByLabel('제목',{exact:true}).fill('두 번째 기기에서 저장한 글');await second.getByRole('button',{name:'변경 저장',exact:true}).click();await expect(second.getByRole('heading',{name:'두 번째 기기에서 저장한 글',exact:true})).toBeVisible()
+    await page.bringToFront();await page.evaluate(()=>window.dispatchEvent(new Event('focus')));await expect(page.getByRole('heading',{name:'두 번째 기기에서 저장한 글',exact:true})).toBeVisible();await expect(page.getByText('첫 모습',{exact:true}).first()).toBeVisible()
+  }finally{await context.close()}
+})

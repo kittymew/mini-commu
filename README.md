@@ -2,7 +2,7 @@
 
 초대제로 운영하는 캐릭터 프로필 커뮤니티입니다. 요구사항의 기준은 [구현 작업 명세서](커뮤니티_구현_작업명세서.md)입니다.
 
-현재 **7단계: PDF·JSON·이미지 ZIP 내보내기**까지 구현했습니다. 모든 활성 회원이 기간·카테고리와 댓글·이미지 포함 여부를 선택하고 기본 200개씩 나누어 저장할 수 있습니다. [내보내기 안내](docs/exports.md)를 참고하세요. 클라우드 Supabase와 GitHub Pages에는 배포하지 않았습니다.
+현재 **8단계: 최종 검증·모바일 확인·배포 설정·운영 문서**까지 구현했습니다. 초대 가입부터 게시글·투표·회원 내보내기까지 실제 로컬 DB/API와 Chromium·모바일 WebKit으로 검증하며, 검증 성공 후 Pages에 게시하는 워크플로를 제공합니다. 클라우드 Supabase 연결값이 없어 실제 공개 배포는 아직 수행하지 않았습니다. [인수 검증표](docs/acceptance.md)와 [배포 절차](docs/deployment.md)를 참고하세요.
 
 ## 개발 환경
 
@@ -27,7 +27,12 @@ pnpm dev
 | `pnpm dev` | 환경 파일을 사용하는 로컬 개발 서버 |
 | `pnpm dev:local` | 실행 중인 로컬 Supabase 공개 설정으로 앱 실행 |
 | `pnpm db:migrate` | 기존 로컬 데이터를 보존하며 신규 마이그레이션 적용 |
-| `pnpm test:auth` | 실제 인증·캐릭터·게시글·이미지·댓글 E2E 검증 |
+| `pnpm test:auth` | 실제 인증·캐릭터·게시글·투표·내보내기 E2E (Chromium 2종 + WebKit 모바일) |
+| `pnpm test:deployment` | 운영 공개 설정의 누락·비밀 키·잘못된 URL 차단 검사 |
+| `pnpm edge:prepare` | 고정된 이미지 WASM을 Edge 배포용 정적 파일로 준비 |
+| `pnpm test:edge` | 실행 중인 로컬 Deno Edge 함수와 실제 JWT/Storage 통합 검사 |
+| `pnpm build:pages` | 운영 공개 설정 검사 후 Pages 빌드 |
+| `pnpm smoke:pages` | 실제 공개 Pages HTML/JS/CSS 읽기 전용 확인 |
 | `pnpm assets:cleanup --local` | 24시간 지난 미참조 이미지 정리 미리보기 |
 | `pnpm typecheck` | 앱·설정·테스트 TypeScript 검사 |
 | `pnpm lint` | ESLint 검사, 경고도 실패 처리 |
@@ -36,7 +41,7 @@ pnpm dev
 | `pnpm preview` | `http://127.0.0.1:4173/mini-commu/`에서 빌드 확인 |
 | `pnpm test:e2e` | 프로덕션 빌드의 해시 라우팅·새로고침·오류 경로 검사 |
 
-E2E는 Supabase 값이 없는 기본 환경에서 실행합니다. 먼저 `pnpm build`와 `pnpm exec playwright install chromium`을 실행합니다. 설치된 Chrome을 사용하려면 `PLAYWRIGHT_CHANNEL=chrome pnpm test:e2e`도 가능합니다. 테스트는 데스크톱과 모바일 화면 크기에서 실행하며 실제 모바일 기기 검증은 별도입니다.
+E2E는 Supabase 값이 없는 기본 환경에서 실행합니다. 먼저 `pnpm build`와 `pnpm exec playwright install chromium webkit`을 실행합니다. 설치된 Chrome을 사용하려면 `PLAYWRIGHT_CHANNEL=chrome pnpm test:e2e`도 가능합니다. 테스트는 Chromium 데스크톱·Pixel 7과 WebKit iPhone 13 에뮬레이션에서 실행하며 실제 기기 및 Safari 저장 UI 검증은 별도입니다.
 
 ## 환경변수
 
@@ -66,13 +71,13 @@ E2E는 Supabase 값이 없는 기본 환경에서 실행합니다. 먼저 `pnpm 
 
 제한값은 `shared/limits.json`을 기준으로 관리합니다. 2단계에서는 기본 SQL 제약과 DB의 설정 버전 기록을 추가하고 일치 검증을 수행합니다. 제한값을 바꿀 때 새 마이그레이션으로 실제 제약도 함께 변경합니다. 본문의 Unicode 코드 포인트 계산, 이미지 변환 후 저장 한도·축소 크기 등 기능별 검증은 해당 구현 단계에서 완성합니다.
 
-## 다음 단계와 배포
+## 공개 배포에 남은 작업
 
-다음 8단계에서는 전체 권한·동시성·E2E와 모바일 확인, 배포 설정 및 운영 문서를 완성합니다. 가입 완료 후에는 캐릭터 관리 화면으로 이동하며, 운영자는 운영 메뉴에서 초대·회원·조치 기록을 관리할 수 있습니다.
+Supabase Free 프로젝트 연결, 원격 마이그레이션/Edge 함수, SMTP·Auth redirect 설정, GitHub Pages 활성화와 공개 주소 인수 검증이 남아 있습니다. 필요한 설정을 갖춘 뒤 `ENABLE_PAGES_DEPLOY=true`로 자동 배포를 켭니다. 백업 목적지와 정리 스케줄도 연결 전입니다.
 
 저장소: <https://github.com/kittymew/mini-commu>
 
-GitHub Pages 배포 예정 주소: <https://kittymew.github.io/mini-commu/>. 현재 실제 Pages 배포는 수행하지 않았습니다. 현재 워크플로는 프런트엔드 검사, 로컬 DB/API 검사와 인증 E2E를 수행합니다.
+GitHub Pages 배포 예정 주소: <https://kittymew.github.io/mini-commu/>. 현재 실제 Pages 배포는 수행하지 않았습니다. 현재 워크플로는 프런트엔드·DB/API·Edge·인증 E2E 검사 후 명시적으로 활성화된 운영 환경에만 배포합니다.
 
 로컬 DB 실행·테스트 명령과 데이터 경계는 [DB 안내](docs/database.md)를 참고하세요. 외부 Supabase 계정 없이 `pnpm db:start --runtime native`로 시작할 수 있습니다.
 
@@ -93,3 +98,26 @@ pnpm dev:local
 캐릭터 제한·이미지 처리·스냅샷 경계와 로컬/Edge 차이는 [캐릭터 안내](docs/characters.md)를 참고하세요. 활성 캐릭터 6개 한도이며 중지 캐릭터를 다시 사용하려면 자리가 있어야 합니다. 프로필 입력은 10 MiB·1,200만 화소·각 변 8,192px 이내이고, 서버에서 메타데이터 제거와 WebP/썸네일 변환을 수행합니다.
 
 게시글 문법, 초안과 이미지 정리 정책은 [게시글 안내](docs/posts.md)를 참고하세요.
+
+
+## 검증 재현과 알려진 제한
+
+```sh
+pnpm install --frozen-lockfile
+pnpm exec playwright install chromium webkit
+pnpm db:start --runtime native
+pnpm db:migrate
+pnpm db:test
+pnpm db:types:check
+pnpm edge:prepare
+# 별도 터미널에서 유지: node scripts/supabase.mjs functions serve
+pnpm test:edge
+pnpm test:auth
+pnpm test:deployment
+# 인증 E2E 빌드의 로컬 환경값을 제거하는 새 기본 빌드
+pnpm check
+pnpm test:e2e
+pnpm db:stop
+```
+
+실제 Pages/SMTP, Free Edge의 최대 부하, 실제 모바일 기기, 외부 백업·복원/자동 정리는 연결 후 확인해야 합니다. WebKit 검사는 Safari 앱 실기기 검사와 다르며 PDF 파일 생성은 Chromium에서, WebKit은 인쇄 미디어·준비/종료 상태를 검사합니다. 내보내기는 기본 200개/분할, 이미지 64 MiB/분할이며 이미 저장한 파일을 회수하지 못합니다. 기본 JS 번들의 500 kB 초과 경고가 남아 있으나 빌드와 실행 검사는 통과합니다. [운영 한계와 절차](docs/operations.md)를 참고하세요.
