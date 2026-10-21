@@ -1,4 +1,4 @@
-import { useState, type FormEvent } from 'react'
+import { useId,useState, type FormEvent } from 'react'
 import { Link } from 'react-router'
 import { supabase } from '../../lib/supabase'
 import { publicEnv } from '../../lib/env'
@@ -58,11 +58,12 @@ function CharacterForm({ character, onClose }: { character?: Character; onClose:
   </section>
 }
 export function CharacterSelection() {
+  const selectionId=useId()
   const {items,selected,select,loading,error}=useCharacters()
   if(loading)return <p role="status">캐릭터를 확인하고 있어요…</p>
   if(error)return null
   const active=items.filter(c=>c.status==='active')
-  return <div className="character-selection"><div className="character-choice"><label htmlFor="current-character">현재 캐릭터</label><select id="current-character" value={selected?.id ?? ''} onChange={e=>select(e.target.value || null)}><option value="">캐릭터를 선택해 주세요</option>{active.map(c=><option key={c.id} value={c.id}>{c.name} · {c.id.slice(0,8)}</option>)}</select></div>{selected && <Avatar assetId={selected.avatar_asset_id} name={selected.name} />}{!active.length && <Link to="/characters">캐릭터 만들기</Link>}</div>
+  return <div className="character-selection"><div className="character-choice"><label htmlFor={selectionId}>현재 캐릭터</label><select id={selectionId} value={selected?.id ?? ''} onChange={e=>select(e.target.value || null)}><option value="">캐릭터를 선택해 주세요</option>{active.map(c=><option key={c.id} value={c.id}>{c.name} · {c.id.slice(0,8)}</option>)}</select></div>{selected && <Avatar assetId={selected.avatar_asset_id} name={selected.name} />}{!active.length && <Link to="/characters">캐릭터 만들기</Link>}</div>
 }
 export function CharactersPage() {
   const {items,selected,loading,error,reload,select}=useCharacters()

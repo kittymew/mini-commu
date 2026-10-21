@@ -1,0 +1,7 @@
+import type {Json} from '../../types/database'
+export type PollSettings={question:string;options:string[];multiple:boolean;anonymous:boolean;allow_revote:boolean;results_policy:'always'|'after_vote'|'after_close';closes_at:string|null}
+export type Poll=Omit<PollSettings,'options'> & {options:{id:string;text:string;count:number|null}[];closed:boolean;can_close:boolean;can_edit_settings:boolean;has_voted:boolean;my_choices:string[];results_visible:boolean;participants:number|null;voters:{name:string;avatar_asset_id:string|null;choices:string[]}[]}
+export const defaultPoll=():PollSettings=>({question:'',options:['',''],multiple:false,anonymous:true,allow_revote:false,results_policy:'after_vote',closes_at:null})
+export const pollJson=(value:PollSettings)=>value as unknown as Json
+export const pollSettings=(p:Poll):PollSettings=>({question:p.question,options:p.options.map(o=>o.text),multiple:p.multiple,anonymous:p.anonymous,allow_revote:p.allow_revote,results_policy:p.results_policy,closes_at:p.closes_at})
+export function validPollDraft(p:unknown):p is PollSettings {if(!p||typeof p!=='object')return false;const v=p as PollSettings;return typeof v.question==='string'&&Array.isArray(v.options)&&v.options.length>=2&&v.options.length<=10&&v.options.every(o=>typeof o==='string')&&typeof v.multiple==='boolean'&&typeof v.anonymous==='boolean'&&typeof v.allow_revote==='boolean'&&['always','after_vote','after_close'].includes(v.results_policy)&&(v.closes_at===null||typeof v.closes_at==='string'&&Number.isFinite(Date.parse(v.closes_at)))}

@@ -4,11 +4,15 @@ import {supabase} from '../../lib/supabase'
 import {useCharacters} from '../characters/context'
 import {Avatar} from '../characters/Avatar'
 import {contentError,dateText,textLength,type Comment} from './model'
+import {ModerationForm} from './PostAdministration'
+import {useAuth} from '../auth/auth'
 export function Comments({postId,items,reload}:{postId:string;items:Comment[];reload:()=>Promise<void>}){
+  const auth=useAuth()
   const [reply,setReply]=useState<string|null>(null),[editing,setEditing]=useState<Comment|null>(null),[remove,setRemove]=useState<Comment|null>(null),[error,setError]=useState(''),[busy,setBusy]=useState(false)
   async function deleteComment(c:Comment){setBusy(true);setError('');try{const r=await supabase!.rpc('change_comment',{target_id:c.id,expected_version:c.version,remove:true});if(r.error)throw r.error;setRemove(null);await reload()}catch(e){setError(contentError(e))}finally{setBusy(false)}}
   function card(c:Comment,isReply=false){return <article key={c.id} className={`comment ${isReply?'reply':''}`} aria-label={c.deleted?'삭제된 댓글':`${c.author_name_snapshot} 댓글`}>
     {c.deleted?<p>삭제된 댓글입니다.</p>:<><div className="author-line"><Avatar assetId={c.author_avatar_asset_id} name={c.author_name_snapshot}/><span>{c.author_name_snapshot} · {dateText(c.created_at)}{c.version>1?' · 수정됨':''}</span></div><p className="comment-body">{c.body}</p><div className="comment-actions">{!isReply&&<button onClick={()=>{setReply(c.id);setEditing(null)}}>답글 달기</button>}{c.can_edit&&<><button onClick={()=>{setEditing(c);setReply(null)}}>댓글 수정</button><button onClick={()=>setRemove(c)}>댓글 삭제</button></>}</div></>}
+    {!c.deleted&&auth.role==='admin'&&<ModerationForm kind="comment" id={c.id} version={c.version} reload={reload}/>}
     {remove?.id===c.id&&<div className="delete-confirm"><p>이 댓글을 삭제할까요? 답글은 유지됩니다.</p><button disabled={busy} onClick={()=>void deleteComment(c)}>댓글 삭제 확정</button><button disabled={busy} onClick={()=>setRemove(null)}>취소</button></div>}
     {editing?.id===c.id&&<CommentForm key={`edit:${c.id}`} postId={postId} initial={editing} onDone={async()=>{setEditing(null);await reload()}} onCancel={()=>setEditing(null)}/>}
     {reply===c.id&&<CommentForm key={`reply:${c.id}`} postId={postId} parentId={c.id} onDone={async()=>{setReply(null);await reload()}} onCancel={()=>setReply(null)}/>}

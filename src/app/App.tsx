@@ -13,10 +13,11 @@ const PostEditor = lazy(() => import('../features/posts/PostEditor'))
 const PostPage = lazy(() => import('../features/posts/PostPage'))
 const CategoriesPage = lazy(() => import('../features/posts/CategoriesPage'))
 
+const ActivityPage = lazy(() => import('../features/posts/ActivityPage'))
+const AdminPage = lazy(() => import('../features/admin/AdminPage'))
+
 const pages = [
-  { path: '/activity', title: '내 활동', description: '내 계정으로 작성한 글과 댓글을 모아 봅니다.', step: '6단계' },
   { path: '/exports', title: '내보내기', description: '열람 가능한 이야기를 파일로 보관합니다.', step: '7단계' },
-  { path: '/admin', title: '모임 운영', description: '초대와 카테고리, 회원 권한을 관리합니다.', step: '6단계' },
 ]
 
 function Home() {
@@ -49,7 +50,7 @@ export function App() {
     <a className="skip-link" href="#main" onClick={event => { event.preventDefault(); mainRef.current?.focus() }}>본문으로 건너뛰기</a>
     <header className="site-header"><div className="header-inner">
       <Link className="brand" to="/" aria-label="작은 모임 시작 화면"><span className="brand-mark" aria-hidden="true">m.</span>{appConfig.name}</Link>
-      <nav aria-label="주 메뉴"><NavLink to="/feed">피드</NavLink><NavLink to="/characters">캐릭터</NavLink>{auth.user ? <NavLink to="/settings">계정 설정</NavLink> : <NavLink to="/login">로그인</NavLink>}</nav>
+      <nav aria-label="주 메뉴"><NavLink to="/feed">피드</NavLink><NavLink to="/characters">캐릭터</NavLink>{auth.status==='active'&&<NavLink to="/activity">내 활동</NavLink>}{auth.role==='admin'&&<NavLink to="/admin">운영</NavLink>}{auth.user ? <NavLink to="/settings">계정 설정</NavLink> : <NavLink to="/login">로그인</NavLink>}</nav>
     </div></header>
     <main id="main" ref={mainRef} tabIndex={-1} className="page-container">
       <Suspense fallback={<p role="status">화면을 불러오고 있어요…</p>}><Routes><Route path="/" element={<Home />} />
@@ -59,6 +60,7 @@ export function App() {
         <Route path="/posts/new" element={<MemberGate><PostEditor /></MemberGate>} />
         <Route path="/posts/:postId" element={<MemberGate><PostPage /></MemberGate>} />
         <Route path="/posts/:postId/edit" element={<MemberGate><PostEditor /></MemberGate>} />
+        <Route path="/activity" element={<MemberGate><ActivityPage /></MemberGate>} /><Route path="/admin" element={<MemberGate admin><div className="admin-page"><AdminPage /></div></MemberGate>} />
         <Route path="/categories" element={<MemberGate admin><CategoriesPage /></MemberGate>} />
         <Route path="/characters" element={<MemberGate><CharactersPage /></MemberGate>} />
         <Route path="/settings" element={<MemberGate><SettingsPage /></MemberGate>} />

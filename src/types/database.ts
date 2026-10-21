@@ -300,7 +300,10 @@ isOneToOne: false
                 }
           }
           Functions: {
-            "change_comment":
+            "browse_posts":
+{ Args: { "category_filter"?: string,"character_filter"?: string,"cursor"?: Json,"notice_only"?: boolean,"query_text"?: string,"type_filter"?: string }; Returns: Json
+                           },
+"change_comment":
 { Args: { "comment_body"?: string,"expected_version": number,"remove"?: boolean,"target_id": string }; Returns: undefined
                            },
 "change_member_role":
@@ -314,11 +317,17 @@ isOneToOne: false
               "id": string,"storage_path": string,"temporary_path": string,"thumbnail_path": string
             }[]
                            },
+"close_poll":
+{ Args: { "target_id": string }; Returns: undefined
+                           },
 "create_character":
 { Args: { "avatar_id"?: string,"character_bio"?: string,"character_name": string,"request_id"?: string }; Returns: string
                            },
 "create_comment":
 { Args: { "character_id": string,"comment_body": string,"parent_comment"?: string,"request_id": string,"target_post": string }; Returns: string
+                           },
+"create_poll_post":
+{ Args: { "category_id": string,"character_id": string,"document": Json,"image_ids"?: (string)[],"post_title": string,"request_id": string,"settings": Json }; Returns: string
                            },
 "create_post":
 { Args: { "category_id": string,"character_id": string,"document": Json,"image_ids"?: (string)[],"post_title": string,"request_id": string }; Returns: string
@@ -353,6 +362,9 @@ isOneToOne: false
               "action": string,"actor_user_id": string,"created_at": string,"id": number,"reason": string,"target_user_id": string
             }[]
                            },
+"get_poll":
+{ Args: { "target_id": string }; Returns: Json
+                           },
 "get_post":
 { Args: { "target_id": string }; Returns: Json
                            },
@@ -361,15 +373,30 @@ isOneToOne: false
               "code": string,"invite_id": string
             }[]
                            },
+"list_activity_characters":
+{ Args: Record<PropertyKey, never>; Returns: Json
+                           },
+"list_admin_logs":
+{ Args: { "before_id"?: number }; Returns: Json
+                           },
 "list_comments":
 { Args: { "after_id"?: string,"after_time"?: string,"target_post": string }; Returns: {
               "author_avatar_asset_id": string,"author_character_id": string,"author_name_snapshot": string,"body": string,"can_edit": boolean,"created_at": string,"deleted": boolean,"id": string,"parent_id": string,"updated_at": string,"version": number
             }[]
                            },
+"list_hidden_content":
+{ Args: { "before_id"?: string,"before_time"?: string,"kind_filter"?: string }; Returns: Json
+                           },
 "list_invites":
 { Args: Record<PropertyKey, never>; Returns: {
               "created_at": string,"expires_at": string,"id": string,"max_uses": number,"revoked_at": string,"used_count": number
             }[]
+                           },
+"list_members":
+{ Args: { "before_id"?: string,"before_time"?: string }; Returns: Json
+                           },
+"list_my_activity":
+{ Args: { "before_id"?: string,"before_time"?: string,"character_filter"?: string,"kind_filter"?: string }; Returns: Json
                            },
 "list_my_characters":
 { Args: { "page_offset"?: number }; Returns: {
@@ -393,6 +420,9 @@ isOneToOne: false
               "author_avatar_asset_id": string,"author_character_id": string,"author_name_snapshot": string,"category_id": string,"comment_count": number,"created_at": string,"excerpt": string,"id": string,"image_id": string,"title": string,"updated_at": string,"version": number
             }[]
                            },
+"moderate_content":
+{ Args: { "expected_version": number,"kind": string,"new_status": string,"reason": string,"target_id": string }; Returns: undefined
+                           },
 "move_post_category":
 { Args: { "category_id": string,"expected_version": number,"target_id": string }; Returns: undefined
                            },
@@ -411,11 +441,20 @@ isOneToOne: false
 "set_character_status":
 { Args: { "expected_version": number,"new_status": string,"target_id": string }; Returns: undefined
                            },
+"set_post_notice":
+{ Args: { "expected_version": number,"is_notice": boolean,"pin_position": number,"reason": string,"scope": string,"target_id": string }; Returns: undefined
+                           },
+"submit_vote":
+{ Args: { "character_id": string,"option_ids": (string)[],"target_id": string }; Returns: undefined
+                           },
 "update_character":
 { Args: { "avatar_id"?: string,"character_bio": string,"character_name": string,"expected_version": number,"target_id": string }; Returns: undefined
                            },
 "update_invite":
 { Args: { "expiry": string,"revoke_code"?: boolean,"target_id": string,"use_limit": number }; Returns: undefined
+                           },
+"update_poll":
+{ Args: { "expected_version": number,"settings": Json,"target_id": string }; Returns: undefined
                            },
 "update_post":
 { Args: { "category_id": string,"document": Json,"expected_version": number,"image_ids"?: (string)[],"post_title": string,"target_id": string }; Returns: undefined
